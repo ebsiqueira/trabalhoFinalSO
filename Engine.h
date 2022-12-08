@@ -30,9 +30,11 @@ class Engine {
   public:
    Engine(int w, int h, int fps);
    ~Engine();
+   bool _finish;
+   float prevTime;
    
    void init();
-   void run();
+   void run(float& prevTime);
    void draw();
    void update(double dt);
    void input(ALLEGRO_KEYBOARD_STATE& kb);
@@ -90,7 +92,7 @@ class Engine {
    ALLEGRO_EVENT_QUEUE *_eventQueue;
    ALLEGRO_DISPLAY *_display;
 
-   bool _finish;
+   
    
 };
 

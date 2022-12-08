@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "thread.h"
 
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
@@ -77,17 +78,14 @@ void Engine::init() {
    al_register_event_source(_eventQueue, al_get_keyboard_event_source());
 
    loadSprites();
+   std::cout<<"\ncarregou tudo\n";
 }
 
 
 // repeatedly call the state manager function until the _state is EXIT
-void Engine::run() {
-   float prevTime = 0;
+void Engine::run(float& prevTime) {
    // TODO: criar thread que cuida de entrada de saida (funcao input)
-   // main engine loop
-   while (!_finish) {
-      gameLoop(prevTime);
-   }
+   gameLoop(prevTime);
 }
 
 void Engine::gameLoop(float& prevTime) {
@@ -110,7 +108,6 @@ void Engine::gameLoop(float& prevTime) {
       _finish = true;
       return;
    }
-   
    // timer
    if (event.type == ALLEGRO_EVENT_TIMER) {
       crtTime = al_current_time();
@@ -125,7 +122,7 @@ void Engine::gameLoop(float& prevTime) {
    
    // render
    if (redraw && al_is_event_queue_empty(_eventQueue)) {
-      redraw = false;      
+      redraw = false;   
       draw(); 
       al_flip_display();
    }
@@ -174,13 +171,13 @@ void Engine::draw() {
 
 void Engine::drawBackground() {
    bg->draw_parallax_background(bgMid.x, 0);
+   //al_draw_filled_rectangle(0,0,800,800,al_map_rgb_f(100,0,0));
 }
 
 void Engine::loadSprites()
 {
    // Create Ship
    player = std::make_shared<Player> (Point(215, 245), al_map_rgb(0, 200, 0));
-
 
    // represents the middle of the image width-wise, and top height-wise
    bgMid = Point(0, 0);
