@@ -32,7 +32,6 @@ void Creep::hit() {
 
 void Creep::draw(std::shared_ptr<Sprite> enemyShip, std::shared_ptr<Sprite> enemyDeath) {
    if (!dead) {
-       std::cout << "\n\n\n 999";	
       enemyShip->draw_tinted(centre, color, 0);
    }
    else {
@@ -73,3 +72,5 @@ bool Creep::getDead() { return dead; }
 Vector Creep::getProjSpeed() { return projSpeed; }
 bool Creep::getFire() { return fire; }
 void Creep::setFire(bool f) { fire = f; }
+int Creep::getSize() { return 20; }
+Point Creep::getCentre() { return centre; }

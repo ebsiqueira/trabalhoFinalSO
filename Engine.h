@@ -73,6 +73,7 @@ class Engine {
    void updateLaser(double dt);
    void updateMissile(double dt);
    void updateEnemy(double dt);
+   void collision();
 
    std::shared_ptr<Player> player;
    std::shared_ptr<Sprite> spaceShip;

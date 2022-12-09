@@ -26,6 +26,8 @@ class Creep : public Enemy {
    bool getFire();
    bool getDead();  
    Vector getProjSpeed();
+   int getSize();    
+   Point getCentre();
 
 
     private:

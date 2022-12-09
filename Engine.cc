@@ -117,6 +117,7 @@ void Engine::gameLoop(float& prevTime) {
       updateLaser(dt);
       updateMissile(dt);
       updateEnemy(dt);
+      collision();
 
       prevTime = crtTime;
       redraw = true;
@@ -130,25 +131,62 @@ void Engine::gameLoop(float& prevTime) {
    }
 }
 
+void Engine::collision(){
+   if (!proj.empty() && !enem.empty() && player) {
+      // set player color for which we will be checking for
+      for (std::list< std::shared_ptr<Laser> >::iterator it_proj = 
+	      proj.begin(); it_proj != proj.end(); ++it_proj) {
+	    
+	 // check if colors match
+	 if (doColorsMatch(player->color, (*it_proj)->color)) {
+	    for (std::list< std::shared_ptr<Creep> >::iterator it_enem = 
+		    enem.begin(); it_enem != enem.end(); ++it_enem) {
+		  
+	       // set bounding points
+	       Point pt_proj = (*it_proj)->centre;
+	       Point pt_enem = (*it_enem)->getCentre();
+	       int enem_size = (*it_enem)->getSize();
+
+	       // check for collision
+	       if ((pt_proj.x > pt_enem.x - enem_size) &&
+		   (pt_proj.x < pt_enem.x + enem_size) &&
+		   (pt_proj.y > pt_enem.y - enem_size) &&
+		   (pt_proj.y < pt_enem.y + enem_size)) {
+		     
+		  // register damage on enemy and flag projectile as dead
+		  (*it_proj)->life = false;
+		  (*it_enem)->hit();
+		  // check for enemy death, update score if true
+		  if ((*it_enem)->getDead()) {
+           std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\n";
+		      //updateScore(player->color);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 void Engine::updateEnemy(double dt){
    if (!enem.empty()) {
-         for (auto it = enem.begin(); it != enem.end(); ++it) {
-      (*it)->update(dt);
-      //fire routines for regular enemies	 
-      if ((*it)->getFire()) {    
-         //Purple enemies will spawn two extra projectiles
-         if (doColorsMatch((*it)->color, al_map_rgb(246, 64, 234))) {
-            addLaser((*it)->centre, (*it)->color, (*it)->getProjSpeed() + Vector(0, 40));
-            addLaser((*it)->centre, (*it)->color, (*it)->getProjSpeed() + Vector(0, -40));
-         }	    
-         (*it)->setFire(false);
-      }
+      for (auto it = enem.begin(); it != enem.end(); ++it) {
+         (*it)->update(dt);
+         //fire routines for regular enemies	 
+         if ((*it)->getFire()) {    
+            //Purple enemies will spawn two extra projectiles
+            if (doColorsMatch((*it)->color, al_map_rgb(246, 64, 234))) {
+               addLaser((*it)->centre, (*it)->color, (*it)->getProjSpeed() + Vector(0, 40));
+               addLaser((*it)->centre, (*it)->color, (*it)->getProjSpeed() + Vector(0, -40));
+            }	    
+            (*it)->setFire(false);
          }
       }
+   }
 
-      if (enem.size() <= 3) {
-         spawn();
-      }
+   if (enem.size() <= 3) {
+      spawn();
+   }
 }
 
 void Engine::spawn(){
@@ -159,7 +197,6 @@ void Engine::spawn(){
 	addCreep(Point(1000, 200), al_map_rgb(246, 64, 234), Vector(-180, 0));
 	addCreep(Point(1100, 100), al_map_rgb(246, 64, 234), Vector(-180, 0));
 	addCreep(Point(1100, 500), al_map_rgb(246, 64, 234), Vector(-180, 0));
-   std::cout << "\n ADD OS 7 CREEPS \n";
 }
 
 void Engine::addCreep(const Point& cen, const ALLEGRO_COLOR& col, const Vector& spd) {
@@ -205,17 +242,13 @@ void Engine::draw() {
    drawProjectiles();
    drawMissiles();
    player->drawShip(spaceShip, 0);
-   std::cout << "\n\n\n DESENHOU AS OUTRAS COISAS";	
    drawEnemy();
 }
 
 void Engine::drawEnemy(){
    if (!enem.empty()) {
-      std::cout << "\n\n\n 123";	
       for (auto it = enem.begin(); it != enem.end(); ++it) {	
-         std::cout << "\n\n\n 456";			
 	      (*it)->draw(enemyShip, enemyDeath);
-         std::cout << "\n\n\n DESENHA NAVE";	
 	   }
    }
 }

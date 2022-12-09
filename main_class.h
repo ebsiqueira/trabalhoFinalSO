@@ -57,7 +57,7 @@ static void window_run(){
         float timer = 0;
 
         while(!window->_finish){
-            std::cout<<"\n ENTROU EM LOOP de run";
+            std::cout<<"\n ENTROU EM WINDOW\n";
             window->run(timer);
             std::cout<<"\n YIELD()\n";
             Thread::yield();
@@ -68,14 +68,14 @@ static void window_run(){
 static void player_run(){
     //player = new Player(Point(215, 245), al_map_rgb(0, 200, 0));
     while(!window->_finish){
-        std::cout<<"\n ENTROU EM PLAYER";
+        std::cout<<"\n ENTROU EM PLAYER\n";
         Thread::yield();
     }
 }
 
 static void enemy_run(){
     while(!window->_finish){
-        std::cout<<"\n ENTROU EM PLAYER";
+        std::cout<<"\n ENTROU EM ENEMY\n";
         Thread::yield();
     }
 }
