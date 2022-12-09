@@ -111,10 +111,12 @@ void Engine::gameLoop(float& prevTime) {
    // timer
    if (event.type == ALLEGRO_EVENT_TIMER) {
       crtTime = al_current_time();
-      player->update(crtTime - prevTime);
-      updateBackgroud(crtTime - prevTime);
-      updateLaser(crtTime - prevTime);
-      updateMissile(crtTime - prevTime);
+      double dt = crtTime - prevTime;
+      player->update(dt);
+      updateBackgroud(dt);
+      updateLaser(dt);
+      updateMissile(dt);
+      updateEnemy(dt);
 
       prevTime = crtTime;
       redraw = true;
@@ -126,6 +128,42 @@ void Engine::gameLoop(float& prevTime) {
       draw(); 
       al_flip_display();
    }
+}
+
+void Engine::updateEnemy(double dt){
+   if (!enem.empty()) {
+         for (auto it = enem.begin(); it != enem.end(); ++it) {
+      (*it)->update(dt);
+      //fire routines for regular enemies	 
+      if ((*it)->getFire()) {    
+         //Purple enemies will spawn two extra projectiles
+         if (doColorsMatch((*it)->color, al_map_rgb(246, 64, 234))) {
+            addLaser((*it)->centre, (*it)->color, (*it)->getProjSpeed() + Vector(0, 40));
+            addLaser((*it)->centre, (*it)->color, (*it)->getProjSpeed() + Vector(0, -40));
+         }	    
+         (*it)->setFire(false);
+      }
+         }
+      }
+
+      if (enem.size() <= 3) {
+         spawn();
+      }
+}
+
+void Engine::spawn(){
+   addCreep(Point(800, 300), al_map_rgb(246, 64, 234),Vector(-180, 0));
+	addCreep(Point(900, 350), al_map_rgb(246, 64, 234), Vector(-180, 0));
+	addCreep(Point(900, 250), al_map_rgb(246, 64, 234), Vector(-180, 0));
+	addCreep(Point(1000, 400), al_map_rgb(246, 64, 234), Vector(-180, 0));
+	addCreep(Point(1000, 200), al_map_rgb(246, 64, 234), Vector(-180, 0));
+	addCreep(Point(1100, 100), al_map_rgb(246, 64, 234), Vector(-180, 0));
+	addCreep(Point(1100, 500), al_map_rgb(246, 64, 234), Vector(-180, 0));
+   std::cout << "\n ADD OS 7 CREEPS \n";
+}
+
+void Engine::addCreep(const Point& cen, const ALLEGRO_COLOR& col, const Vector& spd) {
+   enem.push_back(std::make_shared<Creep> (cen, col, spd));
 }
 
 void Engine::updateMissile(double dt){
@@ -167,6 +205,19 @@ void Engine::draw() {
    drawProjectiles();
    drawMissiles();
    player->drawShip(spaceShip, 0);
+   std::cout << "\n\n\n DESENHOU AS OUTRAS COISAS";	
+   drawEnemy();
+}
+
+void Engine::drawEnemy(){
+   if (!enem.empty()) {
+      std::cout << "\n\n\n 123";	
+      for (auto it = enem.begin(); it != enem.end(); ++it) {	
+         std::cout << "\n\n\n 456";			
+	      (*it)->draw(enemyShip, enemyDeath);
+         std::cout << "\n\n\n DESENHA NAVE";	
+	   }
+   }
 }
 
 void Engine::drawBackground() {
@@ -192,6 +243,7 @@ void Engine::loadSprites()
    al_change_directory(al_path_cstr(path, '/'));   
    // sprites
    spaceShip = std::make_shared<Sprite> ("Sprite2.png"); //espaçonave do usuário
+   enemyShip = std::make_shared<Sprite> ("EnemyBasic.png");
    bg = std::make_shared<Sprite> ("BGstars.png"); //fundo da tela - background
    // delete path 
    al_destroy_path(path);
@@ -255,4 +307,8 @@ void Engine::input(ALLEGRO_KEYBOARD_STATE& kb) {
       default:
          break;
       }
+}
+
+bool Engine::doColorsMatch(const ALLEGRO_COLOR& a, const ALLEGRO_COLOR& b) {
+   return (a.r == b.r && a.g == b.g && a.b == b.b);
 }

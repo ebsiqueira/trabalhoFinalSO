@@ -2,6 +2,7 @@
 #define objeto_h
 
 #include "Vector.h"
+#include "Point.h"
 
 class Objeto {
     

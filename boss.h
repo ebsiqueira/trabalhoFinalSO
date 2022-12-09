@@ -14,4 +14,6 @@ class Boss : public Enemy {
 
     private:
 
-}
+};
+
+#endif

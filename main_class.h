@@ -23,6 +23,8 @@ public:
         window_thread = new Thread(window_run);
         std::cout<<"\n\n PLAYER CRIADA: ";
         player_thread = new Thread(player_run);
+        std::cout<<"\n\n ENEMY CRIADA: ";
+        enemy_thread = new Thread(enemy_run);
 
         std::cout<<"\nacabou?\n";
         window_thread->join();
@@ -40,9 +42,11 @@ private:
 
 static Engine *window;
 static Player *player;
+static Enemy *enemy;
 
 static Thread *window_thread;
 static Thread *player_thread;
+static Thread *enemy_thread;
 
 
 static void window_run(){
@@ -63,6 +67,13 @@ static void window_run(){
 
 static void player_run(){
     //player = new Player(Point(215, 245), al_map_rgb(0, 200, 0));
+    while(!window->_finish){
+        std::cout<<"\n ENTROU EM PLAYER";
+        Thread::yield();
+    }
+}
+
+static void enemy_run(){
     while(!window->_finish){
         std::cout<<"\n ENTROU EM PLAYER";
         Thread::yield();

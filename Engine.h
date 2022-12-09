@@ -20,6 +20,8 @@
 #include "Timer.h"
 #include "Laser.h"
 #include "Missile.h"
+#include "Enemy.h"
+#include "Creep.h"
 
 // forward declarations
 class Menu;
@@ -36,12 +38,15 @@ class Engine {
    void init();
    void run(float& prevTime);
    void draw();
+   void spawn();
    void update(double dt);
    void input(ALLEGRO_KEYBOARD_STATE& kb);
    void addPlayerLaserSingleShot();
    void addPlayerMissileSingleShot();
+   void addCreep(const Point& cen, const ALLEGRO_COLOR& col, const Vector& spd);
    void addLaser(const Point&, const ALLEGRO_COLOR&, const Vector&);
    void addMissile(const Point&, const ALLEGRO_COLOR&, const Vector&);
+   bool doColorsMatch(const ALLEGRO_COLOR& a, const ALLEGRO_COLOR& b);
 
    void gameLoop(float& prevTime);
    void drawBackground();
@@ -63,16 +68,21 @@ class Engine {
    void selectShipAnimation();
    void drawProjectiles();
    void drawMissiles();
+   void drawEnemy();
    void updateBackgroud(double dt);
    void updateLaser(double dt);
    void updateMissile(double dt);
+   void updateEnemy(double dt);
 
    std::shared_ptr<Player> player;
    std::shared_ptr<Sprite> spaceShip;
+   std::shared_ptr<Sprite> enemyShip;
+   std::shared_ptr<Sprite> enemyDeath;
    std::shared_ptr<Timer> playerWeapon1;
    std::shared_ptr<Timer> playerWeapon2;
    std::list< std::shared_ptr<Laser> > proj;
    std::list< std::shared_ptr<Missile> > proj2;
+   std::list< std::shared_ptr<Creep> > enem;
 
    //Background
    Point bgMid;/**<point used by the background to draw from */
