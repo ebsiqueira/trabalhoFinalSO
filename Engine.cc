@@ -15,13 +15,13 @@
 #include "Laser.h"
 #include "Missile.h"
 
-Engine::Engine(int w, int h, int fps) : _displayWidth(w), _displayHeight(h), 
+Engine::Engine(int w, int h, int fps, Player *player) : _displayWidth(w), _displayHeight(h), 
 					_fps(fps),
 					_timer(NULL),
 					_eventQueue(NULL),
                _finish(false)
 {
-   
+   _player = player;
 }
 
 Engine::~Engine() {
@@ -96,7 +96,7 @@ void Engine::gameLoop(float& prevTime) {
    
    // input
    al_get_keyboard_state(&kb);      
-   act::action a = player->input(kb); //irá retornar uma tecla de ação. TODO: necessário transformar em Thread e fazer a ação
+   //act::action a = player->input(kb); //irá retornar uma tecla de ação. TODO: necessário transformar em Thread e fazer a ação
    input(kb);
    
 
@@ -104,7 +104,7 @@ void Engine::gameLoop(float& prevTime) {
    al_wait_for_event(_eventQueue, &event);
    
    // _display closes
-   if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || a == act::action::QUIT_GAME) {
+   if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
       _finish = true;
       return;
    }
@@ -112,7 +112,7 @@ void Engine::gameLoop(float& prevTime) {
    if (event.type == ALLEGRO_EVENT_TIMER) {
       crtTime = al_current_time();
       double dt = crtTime - prevTime;
-      player->update(dt);
+      _player->update(dt);
       updateBackgroud(dt);
       updateLaser(dt);
       updateMissile(dt);
@@ -132,13 +132,13 @@ void Engine::gameLoop(float& prevTime) {
 }
 
 void Engine::collision(){
-   if (!proj.empty() && !enem.empty() && player) {
+   if (!proj.empty() && !enem.empty() && _player) {
       // set player color for which we will be checking for
       for (std::list< std::shared_ptr<Laser> >::iterator it_proj = 
 	      proj.begin(); it_proj != proj.end(); ++it_proj) {
 	    
 	 // check if colors match
-	 if (doColorsMatch(player->color, (*it_proj)->color)) {
+	 if (doColorsMatch(_player->color, (*it_proj)->color)) {
 	    for (std::list< std::shared_ptr<Creep> >::iterator it_enem = 
 		    enem.begin(); it_enem != enem.end(); ++it_enem) {
 		  
@@ -168,11 +168,12 @@ void Engine::collision(){
    }
 }
 
+
 void Engine::updateEnemy(double dt){
    if (!enem.empty()) {
       for (auto it = enem.begin(); it != enem.end(); ++it) {
          (*it)->update(dt);
-         //fire routines for regular enemies	 
+         //fire routines for regular enemies
          if ((*it)->getFire()) {    
             //Purple enemies will spawn two extra projectiles
             if (doColorsMatch((*it)->color, al_map_rgb(246, 64, 234))) {
@@ -241,7 +242,7 @@ void Engine::draw() {
    drawBackground();
    drawProjectiles();
    drawMissiles();
-   player->drawShip(spaceShip, 0);
+   _player->drawShip(spaceShip, 0);
    drawEnemy();
 }
 
@@ -261,7 +262,7 @@ void Engine::drawBackground() {
 void Engine::loadSprites()
 {
    // Create Ship
-   player = std::make_shared<Player> (Point(215, 245), al_map_rgb(0, 200, 0));
+   //player = std::make_shared<Player> (Point(215, 245), al_map_rgb(0, 200, 0));
 
    // represents the middle of the image width-wise, and top height-wise
    bgMid = Point(0, 0);
@@ -284,12 +285,12 @@ void Engine::loadSprites()
 }
 
 void Engine::addPlayerLaserSingleShot() {
-   addLaser(player->centre + Point(-20, 0), player->color, Vector(500, 0));
+   addLaser(_player->centre + Point(-20, 0), _player->color, Vector(500, 0));
    playerWeapon1->srsTimer();
 }
 
 void Engine::addPlayerMissileSingleShot() {
-   addMissile(player->centre, player->color, Vector(500, 0));
+   addMissile(_player->centre, _player->color, Vector(500, 0));
    playerWeapon2->srsTimer();
 }
 
@@ -323,8 +324,16 @@ void Engine::drawProjectiles() {
    }
 }
 
+void Engine::set_movimento(act::action action){
+   std::cout << "\n\n ENTROU SET MOVIMENTO \n\n";
+   _player->set_movimento(action);
+}
+
 void Engine::input(ALLEGRO_KEYBOARD_STATE& kb) {
-   switch (player->input(kb)) {    
+
+   std::cout << "\n\n ENTROU ENGINE INPUT \n\n";
+
+   switch (_player->input(kb)) {    
       case act::action::FIRE_PRIMARY:
          if (playerWeapon1->getCount() > 12) {
             addPlayerLaserSingleShot();

@@ -3,23 +3,29 @@
 #include "Engine.h"
 #include <iostream>
 
-Player::Player(Point v, ALLEGRO_COLOR c) : centre(v), color(c), speed(Vector(0, 0)), life(3), row(0), col(0), dead(false) {}
+Player::Player(Point v, ALLEGRO_COLOR c) : centre(v), color(c), speed(Vector(0, 0)), life(3), row(0), col(0), dead(false) {
+   _movimento = act::action::NO_ACTION;
+}
 
 Player::~Player() {}
 
-act::action Player::input(ALLEGRO_KEYBOARD_STATE& kb) {
-  if (al_key_down(&kb, ALLEGRO_KEY_UP)) {
+void Player::move(){
+   if (_movimento == act::action::MOVE_UP) {
     speed.y -= 250;
   }
-  if (al_key_down(&kb, ALLEGRO_KEY_RIGHT)) {
+  if (_movimento == act::action::MOVE_RIGHT) {
     speed.x += 250;
   }
-  if (al_key_down(&kb, ALLEGRO_KEY_DOWN)) {
+  if (_movimento == act::action::MOVE_DOWN) {
     speed.y += 250;
   }
-  if (al_key_down(&kb, ALLEGRO_KEY_LEFT)) {
+  if (_movimento == act::action::MOVE_LEFT) {
     speed.x -= 250;
   }
+}
+
+
+act::action Player::input(ALLEGRO_KEYBOARD_STATE& kb) {
   if (al_key_down(&kb, ALLEGRO_KEY_SPACE)) {
     return act::action::FIRE_PRIMARY;
   }
@@ -40,8 +46,8 @@ void Player::drawShip(std::shared_ptr<Sprite> sprite, int flags){
 
 void Player::update(double dt) {
    centre = centre + speed * dt;
-   selectShipAnimation(); // must happen before we reset our speed
-   speed = Vector(0, 0); // reset our speed
+   selectShipAnimation();
+   speed = Vector(0, 0); 
    checkBoundary();
 }
 

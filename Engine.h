@@ -30,7 +30,7 @@ class Root;
 class Engine {
       
   public:
-   Engine(int w, int h, int fps);
+   Engine(int w, int h, int fps, Player *player);
    ~Engine();
    bool _finish;
    float prevTime;
@@ -39,8 +39,10 @@ class Engine {
    void run(float& prevTime);
    void draw();
    void spawn();
+   void setMovShip(act::action action);
    void update(double dt);
    void input(ALLEGRO_KEYBOARD_STATE& kb);
+   void set_movimento(act::action action);
    void addPlayerLaserSingleShot();
    void addPlayerMissileSingleShot();
    void addCreep(const Point& cen, const ALLEGRO_COLOR& col, const Vector& spd);
@@ -75,7 +77,8 @@ class Engine {
    void updateEnemy(double dt);
    void collision();
 
-   std::shared_ptr<Player> player;
+   //std::shared_ptr<Player> player;
+   Player *_player;
    std::shared_ptr<Sprite> spaceShip;
    std::shared_ptr<Sprite> enemyShip;
    std::shared_ptr<Sprite> enemyDeath;

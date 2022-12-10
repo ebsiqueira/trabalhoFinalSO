@@ -28,14 +28,19 @@ class Player : public Objeto{
 
         void update(double);
 
+        void move();
+
         void drawShip(std::shared_ptr<Sprite> sprite, int flags);
 
-        act::action input(ALLEGRO_KEYBOARD_STATE&);
+        act::action input(ALLEGRO_KEYBOARD_STATE& kb);
+
+        void set_movimento(act::action action){_movimento = action;}
     
     private:
         void selectShipAnimation();
         void checkBoundary();
         void drawRemainingLife();
+        act::action _movimento;
 
 };
 

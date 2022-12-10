@@ -1,6 +1,10 @@
 #ifndef main_class_h
 #define main_class_h
 
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
+#include <stdexcept>
 #include <iostream>
 #include "cpu.h"
 #include "traits.h"
@@ -8,6 +12,8 @@
 #include "semaphore.h"
 #include "Engine.h"
 #include "Player.h"
+#include "Keyevent.h"
+#include "semaphore.h"
 
 __BEGIN_API
 
@@ -18,9 +24,16 @@ public:
     }
 
     static void run(void *name){
-        
+        player = new Player(Point(215, 245), al_map_rgb(0, 200, 0));
+        window = new Engine(800, 600, 60, player);
+        event = new Keyevent(window);
+
+        window->init();
+
         std::cout<<"\n\n WINDOW CRIADA: ";
         window_thread = new Thread(window_run);
+        std::cout<<"\n\n EVENT CRIADA: ";
+        event_thread = new Thread(event_run);
         std::cout<<"\n\n PLAYER CRIADA: ";
         player_thread = new Thread(player_run);
         std::cout<<"\n\n ENEMY CRIADA: ";
@@ -31,6 +44,8 @@ public:
         std::cout<<"\n CU?\n";
         delete window_thread;
         delete player_thread;
+        delete enemy_thread;
+        delete event_thread;
 
         delete window;
 
@@ -42,18 +57,27 @@ private:
 
 static Engine *window;
 static Player *player;
-static Enemy *enemy;
+static Creep *enemyCreep;
+static Keyevent *event;
 
 static Thread *window_thread;
 static Thread *player_thread;
 static Thread *enemy_thread;
+static Thread *event_thread;
 
+static void event_run(){
+    while(!window->_finish){
+        std::cout<<"\n ENTROU EM EVENT\n";
+        ALLEGRO_KEYBOARD_STATE kb;
+        al_get_keyboard_state(&kb);
+        act::action actionReturn = event->handler(kb);
+        Thread::yield();
+    }
+}
 
 static void window_run(){
     std::cout<<"\n ENTROU EM WINDOW";
-        window = new Engine(800, 600, 60);
-        window->init();
-
+        
         float timer = 0;
 
         while(!window->_finish){
@@ -66,9 +90,9 @@ static void window_run(){
     }
 
 static void player_run(){
-    //player = new Player(Point(215, 245), al_map_rgb(0, 200, 0));
     while(!window->_finish){
         std::cout<<"\n ENTROU EM PLAYER\n";
+        player->move();
         Thread::yield();
     }
 }
